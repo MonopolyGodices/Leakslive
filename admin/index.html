@@ -127,9 +127,9 @@ function renderList(){
     el.innerHTML=h;
 }
 
-/* Login */
 document.getElementById("admGo").addEventListener("click",doLogin);
 document.getElementById("admPass").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin()});
+
 function doLogin(){
     if(document.getElementById("admPass").value===adminPass){
         document.getElementById("admLogin").style.display="none";
@@ -144,7 +144,6 @@ function doLogin(){
     }
 }
 
-/* Tabs */
 document.querySelectorAll(".adm-tab").forEach(function(t){
     t.addEventListener("click",function(){
         document.querySelectorAll(".adm-tab").forEach(function(x){x.classList.remove("on")});
@@ -157,7 +156,6 @@ document.querySelectorAll(".adm-tab").forEach(function(t){
     });
 });
 
-/* Logout */
 document.getElementById("logoutBtn").addEventListener("click",function(){
     document.getElementById("admLogin").style.display="block";
     document.getElementById("admDash").classList.remove("show");
@@ -166,7 +164,6 @@ document.getElementById("logoutBtn").addEventListener("click",function(){
     document.getElementById("admErr").style.display="none";
 });
 
-/* Add */
 document.getElementById("addGo").addEventListener("click",function(){
     var em=document.getElementById("aEm").value.trim(),pw=document.getElementById("aPw").value.trim();
     if(!em||em.indexOf("@")===-1){toast("Invalid email!",false);return}
@@ -184,13 +181,11 @@ document.getElementById("addGo").addEventListener("click",function(){
     }).catch(function(){toast("Error!",false)})
 });
 
-/* Delete */
 document.addEventListener("click",function(e){
     var b=e.target.closest("[data-del]");if(!b)return;
     db.collection("lz_leaks").doc(b.getAttribute("data-del")).delete().then(function(){loadAll();toast("Deleted!",true)}).catch(function(){toast("Error!",false)});
 });
 
-/* Settings */
 document.getElementById("chPw").addEventListener("click",function(){
     var p=document.getElementById("nPw").value.trim();
     if(p.length<4){toast("Min 4 chars!",false);return}
