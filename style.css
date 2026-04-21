@@ -142,7 +142,7 @@ footer{text-align:center;padding:1.5rem 20px;border-top:1px solid var(--bdr);col
 @keyframes to{to{opacity:0;transform:translateY(-12px)}}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--acc)}
 @media(max-width:700px){.grid{grid-template-columns:1fr}.stats{gap:1rem}.frow{grid-template-columns:1fr}.toolbar{flex-direction:column}.nav-list{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}} 
 /* ===== VCC Generator ===== */
 .vcc-page{max-width:700px;margin:0 auto;padding:0 20px 4rem}
 .vcc-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
