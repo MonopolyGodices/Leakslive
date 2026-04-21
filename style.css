@@ -187,3 +187,4 @@ footer{text-align:center;padding:1.5rem 20px;border-top:1px solid var(--bdr);col
 .vcc-disc{text-align:center;padding:18px;color:var(--mut);font-size:.78rem;line-height:1.8;background:var(--card);border:1px solid var(--bdr);border-radius:10px;margin-top:28px}
 .vcc-disc i{color:var(--red);margin-left:4px}
 .vcc-controls input::placeholder{color:var(--mut);font-family:'Fira Code',monospace;letter-spacing:1px;font-size:.82rem}
+.adm-logout{padding:8px 12px;border-radius:50%}
