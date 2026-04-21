@@ -15,7 +15,8 @@ var SECTIONS={
     hbo:{name:"HBO Max",icon:"fa-film",color:"#b08beb",services:["hbo"],desc:"Premium HBO Max accounts"},
     instagram:{name:"Instagram",icon:"fa-camera",color:"#e1306c",services:["instagram"],desc:"Instagram accounts"},
     gaming:{name:"Gaming",icon:"fa-gamepad",color:"#00d4ff",services:["steam","fortnite","minecraft"],desc:"Steam, Fortnite, Minecraft accounts"},
-    other:{name:"Other",icon:"fa-ellipsis",color:"#888",services:["canva","chatgpt","crunchyroll","discord","tiktok","twitter","other"],desc:"Canva, ChatGPT & more"
+    /* ✅ صح */
+    other:{name:"Other",icon:"fa-ellipsis",color:"#888",services:["canva","chatgpt","crunchyroll","discord","tiktok","twitter","other"],desc:"Canva, ChatGPT & more"},
     vcc:{name:"VCC Gen",icon:"fa-credit-card",color:"#ffd700",services:[],desc:"Generate virtual test cards for payment gateway testing"},
 };
 
@@ -224,9 +225,10 @@ function saveCpa(){cpaLink=$("#cpaIn").value.trim();cpaNeeded=parseInt($("#cpaCn
 function saveSettings(){if(!db)return;db.collection("lz_settings").doc("admin").set({password:adminPass,cpaLink:cpaLink,cpaCount:cpaNeeded},{merge:true}).catch(function(){})}
 function clearAll(){if(!db||!leaks.length){toast("Nothing to delete!",false);return}var batch=db.batch();for(var i=0;i<leaks.length;i++){batch.delete(db.collection("lz_leaks").doc(leaks[i].id))}batch.commit().then(function(){leaks=[];render();renderAdminList();stats();toast("All deleted!",true)}).catch(function(){toast("Error!",false)})}
 
+/*  */
 buildPage();
-if(db){loadSettings();loadLeaks()
-/* ===== VCC Generator ===== */
+if(db){loadSettings();loadLeaks()}
+
 var VCC_NAMES=["John Smith","Jane Johnson","Michael Williams","Sarah Brown","David Jones","Emily Garcia","Robert Miller","Lisa Davis","James Rodriguez","Maria Martinez","William Hernandez","Jennifer Lopez","Richard Gonzalez","Patricia Wilson","Thomas Anderson","Linda Taylor","Charles Moore","Barbara Jackson","Christopher Martin","Elizabeth Lee","Daniel Perez","Susan Thompson","Matthew White","Jessica Harris","Anthony Sanchez","Karen Clark","Andrew Ramirez","Lisa Lewis","Joshua Robinson","Betty Walker","Kenneth Young","Margaret Allen","Kevin King","Sandra Wright","Brian Scott","Ashley Torres","George Nguyen","Dorothy Hill","Timothy Flores","Emily Green","Mark Adams","Sandra Nelson","Paul Baker","Karen Hall","Andrew Rivera","Lisa Campbell","Joshua Mitchell","Betty Carter","Kenneth Roberts"];
 
 var VCC_TYPES={
@@ -310,7 +312,9 @@ function vccBulk(){
 document.addEventListener("click",function(e){
     var b=e.target.closest("[data-vc]");if(b){
         var v=b.getAttribute("data-vc");
+        /* ✅ صح — آخر سطر في الملف */
         if(navigator.clipboard){navigator.clipboard.writeText(v).then(function(){toast("Copied!",true)})}
         else{var ta=document.createElement("textarea");ta.value=v;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);toast("Copied!",true)}
     }
 });
+})();
