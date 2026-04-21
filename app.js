@@ -15,7 +15,8 @@ var SECTIONS={
     hbo:{name:"HBO Max",icon:"fa-film",color:"#b08beb",services:["hbo"],desc:"Premium HBO Max accounts"},
     instagram:{name:"Instagram",icon:"fa-camera",color:"#e1306c",services:["instagram"],desc:"Instagram accounts"},
     gaming:{name:"Gaming",icon:"fa-gamepad",color:"#00d4ff",services:["steam","fortnite","minecraft"],desc:"Steam, Fortnite, Minecraft accounts"},
-    other:{name:"Other",icon:"fa-ellipsis",color:"#888",services:["canva","chatgpt","crunchyroll","discord","tiktok","twitter","other"],desc:"Canva, ChatGPT & more"}
+    other:{name:"Other",icon:"fa-ellipsis",color:"#888",services:["canva","chatgpt","crunchyroll","discord","tiktok","twitter","other"],desc:"Canva, ChatGPT & more"
+    vcc:{name:"VCC Gen",icon:"fa-credit-card",color:"#ffd700",services:[],desc:"Generate virtual test cards for payment gateway testing"},
 };
 
 var SVC={
@@ -47,7 +48,8 @@ function ago(ts){var d=Date.now()-ts,m=Math.floor(d/60000),h=Math.floor(d/360000
 (function(){var c=document.getElementById("dots");if(!c)return;for(var i=0;i<20;i++){var d=document.createElement("div");d.className="dot";d.style.left=Math.random()*100+"%";d.style.animationDuration=(10+Math.random()*14)+"s";d.style.animationDelay=Math.random()*12+"s";var sz=(1+Math.random()*2)+"px";d.style.width=sz;d.style.height=sz;c.appendChild(d)}})();
 
 function buildPage(){
-    var app=document.getElementById("app");var h="";
+    var app=document.getElementById("app");var h=""; 
+    if(SECTION==="vcc"){buildVccPage();return}
     h+=buildHeader();h+=buildNav();
     if(SECTION==="all")h+=buildMainHero();else h+=buildSectionHero();
     if(SECTION==="all")h+=buildToolbar();else h+=buildSecSearch();
@@ -223,5 +225,92 @@ function saveSettings(){if(!db)return;db.collection("lz_settings").doc("admin").
 function clearAll(){if(!db||!leaks.length){toast("Nothing to delete!",false);return}var batch=db.batch();for(var i=0;i<leaks.length;i++){batch.delete(db.collection("lz_leaks").doc(leaks[i].id))}batch.commit().then(function(){leaks=[];render();renderAdminList();stats();toast("All deleted!",true)}).catch(function(){toast("Error!",false)})}
 
 buildPage();
-if(db){loadSettings();loadLeaks()}
-})();
+if(db){loadSettings();loadLeaks()
+/* ===== VCC Generator ===== */
+var VCC_NAMES=["John Smith","Jane Johnson","Michael Williams","Sarah Brown","David Jones","Emily Garcia","Robert Miller","Lisa Davis","James Rodriguez","Maria Martinez","William Hernandez","Jennifer Lopez","Richard Gonzalez","Patricia Wilson","Thomas Anderson","Linda Taylor","Charles Moore","Barbara Jackson","Christopher Martin","Elizabeth Lee","Daniel Perez","Susan Thompson","Matthew White","Jessica Harris","Anthony Sanchez","Karen Clark","Andrew Ramirez","Lisa Lewis","Joshua Robinson","Betty Walker","Kenneth Young","Margaret Allen","Kevin King","Sandra Wright","Brian Scott","Ashley Torres","George Nguyen","Dorothy Hill","Timothy Flores","Emily Green","Mark Adams","Sandra Nelson","Paul Baker","Karen Hall","Andrew Rivera","Lisa Campbell","Joshua Mitchell","Betty Carter","Kenneth Roberts"];
+
+var VCC_TYPES={
+    visa:{pfx:["4"],len:16,name:"VISA",css:"visa"},
+    mastercard:{pfx:["51","52","53","54","55"],len:16,name:"MASTERCARD",css:"mastercard"},
+    amex:{pfx:["34","37"],len:15,name:"AMEX",css:"amex"},
+    discover:{pfx:["6011"],len:16,name:"DISCOVER",css:"discover"}
+};
+
+function vccGenNum(type){
+    var ct=VCC_TYPES[type];if(!ct)return"";
+    var pfx=ct.pfx[Math.floor(Math.random()*ct.pfx.length)];
+    var num=pfx;while(num.length<ct.len-1)num+=Math.floor(Math.random()*10);
+    var s=0,al=true;
+    for(var i=num.length-1;i>=0;i--){var n=parseInt(num[i],10);if(al){n*=2;if(n>9)n-=9}s+=n;al=!al}
+    return num+((10-(s%10))%10);
+}
+
+function vccFmt(n){var r="";for(var i=0;i<n.length;i++){if(i>0&&i%4===0)r+=" ";r+=n[i]}return r}
+
+function vccExp(){var m=String(Math.floor(Math.random()*12)+1);if(m.length<2)m="0"+m;var y=String(new Date().getFullYear()+1+Math.floor(Math.random()*5));return m+"/"+y.slice(2)}
+
+function vccCvv(type){var l=type==="amex"?4:3;var v="";for(var i=0;i<l;i++)v+=Math.floor(Math.random()*10);return v}
+
+function vccCard(type){
+    var n=vccGenNum(type),ct=VCC_TYPES[type];
+    return{num:n,fmt:vccFmt(n),exp:vccExp(),cvv:vccCvv(type),name:VCC_NAMES[Math.floor(Math.random()*VCC_NAMES.length)],type:type,brand:ct.name,css:ct.css};
+}
+
+function buildVccPage(){
+    var app=document.getElementById("app");var h="";
+    h+=buildHeader();h+=buildNav();
+    h+='<section class="hero"><a href="'+BASE+'" class="hero-back"><i class="fas fa-arrow-left"></i> Back to Home</a>';
+    h+='<div class="hero-section-icon" style="background:rgba(255,215,0,.12);color:#ffd700"><i class="fas fa-credit-card"></i></div>';
+    h+='<h1><em>VCC Generator</em></h1>';
+    h+='<p>Generate virtual test cards for payment gateway testing</p></section>';
+    h+='<div class="vcc-page">';
+    h+='<div class="vcc-controls"><select id="vccT"><option value="visa">Visa</option><option value="mastercard">Mastercard</option><option value="amex">American Express</option><option value="discover">Discover</option></select><button class="vcc-gen" id="vccGen"><i class="fas fa-rotate"></i> Generate</button></div>';
+    h+='<div class="vcc-output" id="vccOut"></div>';
+    h+='<div class="vcc-sep">or generate in bulk</div>';
+    h+='<div class="vcc-bulk"><div class="vcc-bulk-ctrl"><select id="vccBT"><option value="visa">Visa</option><option value="mastercard">Mastercard</option><option value="amex">American Express</option><option value="discover">Discover</option></select><select id="vccBC" style="flex:0 0 auto;min-width:100px"><option value="5">5 cards</option><option value="10">10 cards</option><option value="20">20 cards</option><option value="50">50 cards</option></select><button class="vcc-gen" id="vccBG"><i class="fas fa-layer-group"></i> Bulk Generate</button></div>';
+    h+='<div class="vcc-bulk-out" id="vccBulk"></div></div>';
+    h+='<div class="vcc-disc"><i class="fas fa-exclamation-triangle"></i> These cards are <b>for testing only</b>. They pass Luhn validation but are <b>not real</b> and cannot process transactions. Use them to test your payment gateway integration (Stripe, PayPal, etc.).</div>';
+    h+='</div><footer>LEAK ZONE &copy; 2025</footer>';
+    h+=buildModals();
+    app.innerHTML=h;bindEvents();bindVcc();
+    vccSingle();
+}
+
+function bindVcc(){
+    var g=document.getElementById("vccGen");if(g)g.addEventListener("click",vccSingle);
+    var bg=document.getElementById("vccBG");if(bg)bg.addEventListener("click",vccBulk);
+}
+
+function vccSingle(){
+    var t=document.getElementById("vccT").value;var c=vccCard(t);
+    var h='<div class="vcc-card '+c.css+'" style="animation:cu .4s ease both">';
+    h+='<div class="vcc-top"><span class="vcc-brand">'+c.brand+'</span><div class="vcc-chip"></div></div>';
+    h+='<div class="vcc-num">'+c.fmt+'</div>';
+    h+='<div class="vcc-bot"><div><div class="vcc-holder-label">Card Holder</div><div class="vcc-holder">'+c.name+'</div></div>';
+    h+='<div class="vcc-info"><div class="vcc-info-row"><span class="vcc-info-label">Expires</span><div class="vcc-info-val">'+c.exp+'</div></div>';
+    h+='<div class="vcc-info-row"><span class="vcc-info-label">CVV</span><div class="vcc-info-val">'+c.cvv+'</div></div></div></div></div>';
+    h+='<div class="vcc-acts">';
+    h+='<button class="vcc-ab" data-vc="'+esc(c.num+"|"+c.exp+"|"+c.cvv+"|"+c.name)+'"><i class="fas fa-copy"></i> Copy All</button>';
+    h+='<button class="vcc-ab" data-vc="'+esc(c.num)+'"><i class="fas fa-hashtag"></i> Number</button>';
+    h+='<button class="vcc-ab" data-vc="'+esc(c.cvv)+'"><i class="fas fa-lock"></i> CVV</button>';
+    h+='<button class="vcc-ab" data-vc="'+esc(c.exp)+'"><i class="fas fa-calendar"></i> Expiry</button>';
+    h+='</div>';
+    document.getElementById("vccOut").innerHTML=h;
+}
+
+function vccBulk(){
+    var t=document.getElementById("vccBT").value;var n=parseInt(document.getElementById("vccBC").value)||10;
+    var lines=[];lines.push("Brand     | Number                | Expiry  | CVV  | Name");
+    lines.push("".padEnd(72,"-"));
+    for(var i=0;i<n;i++){var c=vccCard(t);lines.push(c.brand.padEnd(10)+"| "+c.fmt.padEnd(22)+"| "+c.exp+"    | "+c.cvv+"   | "+c.name)}
+    var el=document.getElementById("vccBulk");el.textContent=lines.join("\n");el.classList.add("show");
+    toast(n+" cards generated!",true);
+}
+
+document.addEventListener("click",function(e){
+    var b=e.target.closest("[data-vc]");if(b){
+        var v=b.getAttribute("data-vc");
+        if(navigator.clipboard){navigator.clipboard.writeText(v).then(function(){toast("Copied!",true)})}
+        else{var ta=document.createElement("textarea");ta.value=v;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);toast("Copied!",true)}
+    }
+});
