@@ -5,12 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel</title>
 <meta name="robots" content="noindex, nofollow">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Fira+Code:wdeclspec400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/all.min.css">
 <link rel="stylesheet" href="../style.css">
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="../config.js"></script>
+<script>
+var FB_CONFIG={apiKey:"AIzaSyAhTuTzf9axFCAAEVnKK_jlvQ9ipP8puZg",authDomain:"anime-chat-app-66dbe.firebaseapp.com",projectId:"anime-chat-app-66dbe",storageBucket:"anime-chat-app-66dbe.firebasestorage.app",messagingSenderId:"945550755759",appId:"1:945550755759:web:98de13682bad4415e5d15a"};
+</script>
 <style>
 .adm-wrap{max-width:700px;margin:0 auto;padding:2rem 20px;min-height:100vh}
 .adm-login{text-align:center;padding:4rem 0}
@@ -28,7 +30,8 @@
 .adm-stat-card{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:16px;text-align:center}
 .adm-stat-card .n{font-family:'Fira Code',monospace;font-size:1.4rem;font-weight:700;color:var(--acc)}
 .adm-stat-card .l{font-size:.72rem;color:var(--mut);margin-top:4px}
-.adm-logout{position:fixed;top:16px;left:16px;z-index:999}
+.adm-logout{position:fixed;top:16px;left:16px;z-index:999;padding:8px 12px;border-radius:50%}
+.error-box{background:rgba(255,51,85,.08);border:1px solid rgba(255,51,85,.25);border-radius:8px;padding:14px;text-align:center;margin-top:12px;color:var(--red);font-size:.85rem;display:none}
 </style>
 </head>
 <body>
@@ -36,7 +39,6 @@
 <div class="orb a"></div>
 <div class="orb b"></div>
 <div class="toasts" id="toasts"></div>
-
 <button class="btn btn-g adm-logout" id="logoutBtn" style="display:none"><i class="fas fa-sign-out-alt"></i></button>
 
 <div class="adm-wrap">
@@ -44,9 +46,9 @@
         <div class="logo-b"><i class="fas fa-shield-halved"></i></div>
         <h2>Admin Panel</h2>
         <p>Restricted access</p>
-        <div class="fg"><input type="password" id="admPass" placeholder="Password"></div>
+        <div class="fg"><input type="password" id="admPass" placeholder="Password" autocomplete="off"></div>
         <button class="btn btn-a" style="width:100%;padding:12px" id="admGo"><i class="fas fa-arrow-right-to-bracket"></i> Login</button>
-        <div class="lerr" id="admErr">Wrong password!</div>
+        <div class="error-box" id="admErr">Wrong password!</div>
     </div>
     <div class="adm-dash" id="admDash">
         <h2 style="margin-bottom:16px">Dashboard</h2>
@@ -69,7 +71,7 @@
             <button class="btn btn-a" style="width:100%;padding:12px" id="addGo"><i class="fas fa-paper-plane"></i> Publish</button>
         </div>
         <div class="adm-panel" id="apList"><div id="aList"></div></div>
-        <div class="adm-panel" id="apSet">
+        <div class="adm-panel" id="parseSet">
             <div class="fg"><label>Change admin password</label><input type="password" id="nPw" placeholder="New password"></div>
             <button class="btn btn-a" style="width:100%;margin-bottom:14px" id="chPw"><i class="fas fa-key"></i> Update</button>
             <div class="fg"><label>CPA Link</label><input type="text" id="cpaIn" placeholder="https://..."></div>
@@ -82,124 +84,297 @@
 </div>
 
 <script>
-(function(){
+try {
 "use strict";
-try{firebase.initializeApp(FB_CONFIG)}catch(e){}
-var db=null;try{db=firebase.firestore()}catch(e){}
-var adminPass="admin123",cpaLink="",cpaNeeded=1,allLeaks=[];
-var SVC={netflix:{n:"Netflix",i:"N",c:"#e50914",bg:"rgba(229,9,20,.15)"},spotify:{n:"Spotify",i:"S",c:"#1db954",bg:"rgba(29,185,84,.15)"},disney:{n:"Disney+",i:"D",c:"#113ccf",bg:"rgba(17,60,207,.15)"},hbo:{n:"HBO Max",i:"H",c:"#b08beb",bg:"rgba(176,139,235,.15)"},crunchyroll:{n:"Crunchyroll",i:"C",c:"#f47521",bg:"rgba(244,117,33,.15)"},instagram:{n:"Instagram",i:"I",c:"#e1306c",bg:"rgba(225,48,108,.15)"},twitter:{n:"Twitter / X",i:"X",c:"#ccc",bg:"rgba(200,200,200,.08)"},tiktok:{n:"TikTok",i:"T",c:"#ff0050",bg:"rgba(255,0,80,.15)"},discord:{n:"Discord",i:"D",c:"#5865f2",bg:"rgba(88,101,242,.15)"},steam:{n:"Steam",i:"S",c:"#66c0f4",bg:"rgba(102,192,244,.1)"},fortnite:{n:"Fortnite",i:"F",c:"#00d4ff",bg:"rgba(0,212,255,.1)"},minecraft:{n:"Minecraft",i:"M",c:"#62b546",bg:"rgba(98,181,70,.15)"},canva:{n:"Canva",i:"C",c:"#00c4cc",bg:"rgba(0,196,204,.15)"},chatgpt:{n:"ChatGPT",i:"G",c:"#10a37f",bg:"rgba(16,163,127,.15)"},other:{n:"Other",i:"?",c:"#888",bg:"rgba(136,136,136,.1)"}};
-function encPw(p){try{return btoa(unescape(encodeURIComponent(p)))}catch(e){return p}}
-function decPw(p){try{return decodeURIComponent(escape(atob(p)))}catch(e){return p}}
-function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
-function toast(m,ok){var d=document.createElement("div");d.className="toast "+(ok?"g":"r");d.innerHTML='<i class="fas fa-'+(ok?"check-circle":"exclamation-circle")+'"></i> '+m;document.getElementById("toasts").appendChild(d);setTimeout(function(){d.remove()},3000)}
 
-function loadSettings(){
-    db.collection("lz_settings").doc("admin").get().then(function(doc){
-        if(doc.exists){var d=doc.data();if(d.password)adminPass=d.password;if(d.cpaLink)cpaLink=d.cpaLink;if(d.cpaCount)cpaNeeded=parseInt(d.cpaCount)||1}
-    }).catch(function(){})
-}
-function saveSettings(){db.collection("lz_settings").doc("admin").set({password:adminPass,cpaLink:cpaLink,cpaCount:cpaNeeded},{merge:true}).catch(function(){})}
+/* === Firebase === */
+try { firebase.initializeApp(FB_CONFIG); } catch(e) { console.error("Firebase init error:", e); }
+var db = null;
+try { db = firebase.firestore(); } catch(e) { console.error("Firestore error:", e); }
 
-function loadAll(){
-    db.collection("lz_leaks").orderBy("t","desc").get().then(function(snap){
-        allLeaks=[];snap.forEach(function(doc){var d=doc.data();allLeaks.push({id:doc.id,svc:d.svc||"other",email:d.email||"",pw:d.pw||"",country:d.country||"",type:d.type||"premium",notes:d.notes||"",t:d.t||0})});
-        updateStats();renderList();
-    }).catch(function(){})
-}
+var adminPass = "admin123";
+var cpaLink = "";
+var cpaNeeded = 1;
+var allLeaks = [];
 
-function updateStats(){
-    document.getElementById("aT").textContent=allLeaks.length;
-    var today=new Date();today.setHours(0,0,0,0);var ct=0,sv={};
-    for(var i=0;i<allLeaks.length;i++){if(allLeaks[i].t>=today.getTime())ct++;sv[allLeaks[i].svc]=1}
-    document.getElementById("aD").textContent=ct;
-    document.getElementById("aS").textContent=Object.keys(sv).length;
-}
+var SVC = {
+    netflix:{n:"Netflix",i:"N",c:"#e50914",bg:"rgba(229,9,20,.15)"},
+    spotify:{n:"Spotify",i:"S",c:"#1db954",bg:"rgba(29,185,84,.15)"},
+    disney:{n:"Disney+",i:"D",c:"#113ccf",bg:"rgba(17,60,207,.15)"},
+    hbo:{n:"HBO Max",i:"H",c:"#b08beb",bg:"rgba(176,139,235,.15)"},
+    crunchyroll:{n:"Crunchyroll",i:"C",c:"#f47521",bg:"rgba(244,117,33,.15)"},
+    instagram:{n:"Instagram",i:"I",c:"#e1306c",bg:"rgba(225,48,108,.15)"},
+    twitter:{n:"Twitter / X",i:"X",c:"#ccc",bg:"rgba(200,200,200,.08)"},
+    tiktok:{n:"TikTok",i:"T",c:"#ff0050",bg:"rgba(255,0,80,.15)"},
+    discord:{n:"Discord",i:"D",c:"#5865f2",bg:"rgba(88,101,242,.15)"},
+    steam:{n:"Steam",i:"S",c:"#66c0f4",bg:"rgba(102,192,244,.1)"},
+    fortnite:{n:"Fortnite",i:"F",c:"#00d4ff",bg:"rgba(0,212,255,.1)"},
+    minecraft:{n:"Minecraft",i:"M",c:"#62b546",bg:"rgba(98,181,70,.15)"},
+    canva:{n:"Canva",i:"C",c:"#00c4cc",bg:"rgba(0,196,204,.15)"},
+    chatgpt:{n:"ChatGPT",i:"G",c:"#10a37f",bg:"rgba(16,163,127,.15)"},
+    other:{n:"Other",i:"?",c:"#888",bg:"rgba(136,136,136,.1)"}
+};
 
-function renderList(){
-    var el=document.getElementById("aList");if(!allLeaks.length){el.innerHTML='<p style="color:var(--mut);text-align:center;padding:2rem">No leaks yet</p>';return}
-    var h="";
-    for(var i=0;i<allLeaks.length;i++){
-        var L=allLeaks[i],sv=SVC[L.svc]||SVC.other;
-        h+='<div class="ali"><div class="si" style="background:'+sv.bg+';color:'+sv.c+'">'+sv.i+'</div>';
-        h+='<div class="ali-i"><div class="em">'+esc(L.email)+'</div><div class="sl" style="color:var(--acc)!important;font-family:Fira Code,monospace;font-size:.68rem">'+esc(decPw(L.pw))+'</div></div>';
-        h+='<button class="btn btn-r btn-s" data-del="'+L.id+'"><i class="fas fa-trash"></i></button></div>';
-    }
-    el.innerHTML=h;
-}
-
-document.getElementById("admGo").addEventListener("click",doLogin);
-document.getElementById("admPass").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin()});
-
-function doLogin(){
-    if(document.getElementById("admPass").value===adminPass){
-        document.getElementById("admLogin").style.display="none";
-        document.getElementById("admDash").classList.add("show");
-        document.getElementById("logoutBtn").style.display="flex";
-        loadSettings();loadAll();
-        document.getElementById("cpaIn").value=cpaLink;
-        document.getElementById("cpaCnt").value=String(cpaNeeded);
-    }else{
-        document.getElementById("admErr").style.display="block";
-        document.getElementById("admPass").value="";
-    }
+function encPw(p) { try { return btoa(unescape(encodeURIComponent(p)); } catch(e) { return p; } }
+function decPw(p) { try { return decodeURIComponent(escape(atob(p))); } catch(e) { return p; } }
+function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+function toast(m,ok) {
+    try {
+        var d = document.createElement("div");
+        d.className = "toast " + (ok ? "g" : "r");
+        d.innerHTML = '<i class="fas fa-' + (ok ? "check-circle" : "exclamation-circle") + '"></i> ' + m;
+        var t = document.getElementById("toasts");
+        if (t) { t.appendChild(d); setTimeout(function(){ try { t.removeChild(d); } catch(e){} }, 3000); }
+    } catch(e) { alert(m); }
 }
 
-document.querySelectorAll(".adm-tab").forEach(function(t){
-    t.addEventListener("click",function(){
-        document.querySelectorAll(".adm-tab").forEach(function(x){x.classList.remove("on")});
-        t.classList.add("on");
-        document.querySelectorAll(".adm-panel").forEach(function(p){p.classList.remove("on")});
-        var id=t.getAttribute("data-at");
-        if(id==="add")document.getElementById("apAdd").classList.add("on");
-        if(id==="list"){document.getElementById("apList").classList.add("on");renderList()}
-        if(id==="set")document.getElementById("apSet").classList.add("on");
+/* === Load Settings === */
+function loadSettings() {
+    if (!db) return;
+    db.collection("lz_settings").doc("admin").get().then(function(doc) {
+        if (doc.exists) {
+            var d = doc.data();
+            if (d.password) adminPass = d.password;
+            if (d.cpaLink) cpaLink = d.cpaLink;
+            if (d.cpaCount) cpaNeeded = parseInt(d.cpaCount) || 1;
+        }
+    }).catch(function(){});
+}
+
+/* === Save Settings === */
+function saveSettings() {
+    if (!db) return;
+    db.collection("lz_settings").doc("admin").set({
+        password: adminPass, cpaLink: cpaLink, cpaCount: cpaNeeded
+    }, { merge: true }).catch(function(){});
+}
+
+/* === Load All Leaks === */
+function loadAll() {
+    if (!db) { updateStats(); renderList(); return; }
+    db.collection("lz_leaks").orderBy("t","desc").get().then(function(snap) {
+        allLeaks = [];
+        snap.forEach(function(doc) {
+            var d = doc.data();
+            allLeaks.push({
+                id: doc.id,
+                svc: d.svc || "other",
+                email: d.email || "",
+                pw: d.pw || "",
+                country: d.country || "",
+                type: d.type || "premium",
+                notes: d.notes || "",
+                t: d.t || 0
+            });
+        });
+        updateStats();
+        renderList();
+    }).catch(function(e) {
+        console.error("Load error:", e);
+        updateStats();
     });
-});
+}
 
-document.getElementById("logoutBtn").addEventListener("click",function(){
-    document.getElementById("admLogin").style.display="block";
-    document.getElementById("admDash").classList.remove("show");
-    document.getElementById("logoutBtn").style.display="none";
-    document.getElementById("admPass").value="";
-    document.getElementById("admErr").style.display="none";
-});
+/* === Update Stats === */
+function updateStats() {
+    try {
+        var el1 = document.getElementById("aT");
+        var el2 = document.getElementById("aD");
+        var el3 = document.getElementById("aS");
+        if (el1) el1.textContent = allLeaks.length;
+        if (el2) {
+            var today = new Date(); today.setHours(0,0,0,0);
+            var ct = 0, sv = {};
+            for (var i = 0; i < allLeaks.length; i++) {
+                if (allLeaks[i].t >= today.getTime()) ct++;
+                sv[allLeaks[i].svc] = 1;
+            }
+            el2.textContent = ct;
+        }
+        if (el3) el3.textContent = Object.keys(sv).length;
+    } catch(e) {}
+}
 
-document.getElementById("addGo").addEventListener("click",function(){
-    var em=document.getElementById("aEm").value.trim(),pw=document.getElementById("aPw").value.trim();
-    if(!em||em.indexOf("@")===-1){toast("Invalid email!",false);return}
-    if(!pw){toast("Enter password!",false);return}
-    db.collection("lz_leaks").add({
-        svc:document.getElementById("aSvc").value,email:em,pw:encPw(pw),
-        country:document.getElementById("aCo").value.trim()||"N/A",
-        type:document.getElementById("aTy").value,
-        notes:document.getElementById("aNo").value.trim(),
-        t:Date.now()
-    }).then(function(){
-        document.getElementById("aEm").value="";document.getElementById("aPw").value="";
-        document.getElementById("aCo").value="";document.getElementById("aNo").value="";
-        loadAll();toast("Published!",true);
-    }).catch(function(){toast("Error!",false)})
-});
+/* === Render List === */
+function renderList() {
+    var el = document.getElementById("aList");
+    if (!el) return;
+    if (!allLeaks.length) {
+        el.innerHTML = '<p style="color:var(--mut);text-align:center;padding:2rem">No leaks yet</p>';
+        return;
+    }
+    var h = "";
+    for (var i = 0; i < allLeaks.length; i++) {
+        var L = allLeaks[i], sv = SVC[L.svc] || SVC.other;
+        h += '<div class="ali">' +
+            '<div class="si" style="background:' + sv.bg + ";color:" + sv.c + '">' + sv.i + '</div>' +
+            '<div class="ali-i">' +
+            '<div class="em">' + esc(L.email) + '</div>' +
+            '<div class="sl" style="color:var(--acc)!important;font-family:Fira Code,monospace;font-size:.68rem">' + esc(decPw(L.pw)) + '</div>' +
+            '</div>' +
+            '<button class="btn btn-r btn-s" data-del="' + L.id + '"><i class="fas fa-trash"></i></button>' +
+            '</div>';
+    }
+    el.innerHTML = h;
+}
 
-document.addEventListener("click",function(e){
-    var b=e.target.closest("[data-del]");if(!b)return;
-    db.collection("lz_leaks").doc(b.getAttribute("data-del")).delete().then(function(){loadAll();toast("Deleted!",true)}).catch(function(){toast("Error!",false)});
-});
+/* === Login === */
+function doLogin() {
+    try {
+        var passEl = document.getElementById("admPass");
+        var errEl = document.getElementById("admErr");
+        if (!passEl || !errEl) return;
 
-document.getElementById("chPw").addEventListener("click",function(){
-    var p=document.getElementById("nPw").value.trim();
-    if(p.length<4){toast("Min 4 chars!",false);return}
-    adminPass=p;document.getElementById("nPw").value="";saveSettings();toast("Updated!",true);
-});
-document.getElementById("svCpa").addEventListener("click",function(){cpaLink=document.getElementById("cpaIn").value.trim();saveSettings();toast("Saved!",true)});
-document.getElementById("svCnt").addEventListener("click",function(){cpaNeeded=parseInt(document.getElementById("cpaCnt").value)||1;saveSettings();toast("Saved!",true)});
-document.getElementById("clrAll").addEventListener("click",function(){
-    if(!allLeaks.length){toast("Nothing!",false);return}
-    var batch=db.batch();for(var i=0;i<allLeaks.length;i++){batch.delete(db.collection("lz_leaks").doc(allLeaks[i].id))}
-    batch.commit().then(function(){allLeaks=[];updateStats();renderList();toast("All deleted!",true)}).catch(function(){toast("Error!",false)});
-});
+        if (passEl.value === adminPass) {
+            passEl.value = "";
+            errEl.style.display = "none";
+            document.getElementById("admLogin").style.display = "none";
+            document.getElementById("admDash").classList.add("show");
+            document.getElementById("logoutBtn").style.display = "flex";
+            loadSettings();
+            loadAll();
+            try {
+                var ci = document.getElementById("cpaIn");
+                if (ci) ci.value = cpaLink;
+                var cc = document.getElementById("cpaCnt");
+                if (cc) cc.value = String(cpaNeeded);
+            } catch(e) {}
 
-loadSettings();
+            toast("Welcome back, Admin!", true);
+        } else {
+            errEl.style.display = "block";
+            passEl.value = "";
+            try { passEl.focus(); } catch(e) {}
+        }
+    } catch(e) { console.error("Login error:", e); toast("Login error!", false); }
+}
+
+/* === Event Binding === */
+try {
+    document.getElementById("admGo").addEventListener("click", doLogin);
+
+    var passInput = document.getElementById("admPass");
+    if (passInput) {
+        passInput.addEventListener("keydown", function(e) {
+            if (es.key === "Enter") doLogin();
+        });
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+        try {
+            document.getElementById("admLogin").style.display = "block";
+            document.getElementById("admDash").classList.remove("show");
+            document.getElementById("logoutBtn").style.display = "none";
+            document.getElementById("admPass").value = "";
+            document.getElementById("admErr").style.display = "none";
+        } catch(e) { console.error("Logout error:", e); }
+    });
+
+    document.querySelectorAll(".adm-tab").forEach(function(t) {
+        t.addEventListener("click", function() {
+            try {
+                document.querySelectorAll(".adm-tab").forEach(function(x) { x.classList.remove("on"); });
+                t.classList.add("on");
+                document.querySelectorAll(".adm-panel").forEach(function(p) { p.classList.remove("on"); });
+                var id = t.getAttribute("data-at");
+                if (id === "add") document.getElementById("apAdd").classList.add("on");
+                if (id === "list") {
+                    document.getElementById("apList").classList.add("on");
+                    renderList();
+                }
+                if (id === "set") document.getElementById("parseSet").classList.add("on");
+            } catch(e) { console.error("Tab error:", e); }
+        });
+    });
+
+    document.getElementById("addGo").addEventListener("click", function() {
+        try {
+            var em = document.getElementById("aEm");
+            var pw = document.getElementById("aPw");
+            if (!em || em.value.indexOf("@") === -1) { toast("Invalid email!", false); return; }
+            if (!pw || !pw.value) { toast("Enter password!", false); return; }
+            db.collection("lz_leaks").add({
+                svc: document.getElementById("aSvc").value,
+                email: em.value.trim(),
+                pw: encPw(pw.value.trim()),
+                country: document.getElementById("aCo").value.trim() || "N/A",
+                type: document.getElementById("aTy").value,
+                notes: document.getElementById("aNo").value.trim(),
+                t: Date.now()
+            }).then(function() {
+                try {
+                    em.value = ""; pw.value = "";
+                    document.getElementById("aCo").value = "";
+                    document.getElementById("aNo").value = "";
+                    loadAll();
+                    toast("Published!", true);
+                } catch(e) { toast("Error!", false); }
+            }).catch(function() { toast("Publish error!", false); });
+        } catch(e) { console.error("Add error:", e); toast("Error!", false); }
+    });
+
+    document.addEventListener("click", function(e) {
+        try {
+            var b = e.target.closest("[data-del]");
+            if (b) {
+                db.collection("lz_leaks").doc(b.getAttribute("data-del")).delete().then(function() {
+                    loadAll(); toast("Deleted!", true);
+                }).catch(function() { toast("Error!", false); });
+            }
+        } catch(e) {}
+    });
+
+    document.getElementById("chPw").addEventListener("click", function() {
+        try {
+            var p = document.getElementById("nPw");
+            if (!p || !p.value || p.value.trim().length < 4) { toast("Min 4 chars!", false); return; }
+            adminPass = p.value.trim();
+            p.value = "";
+            saveSettings();
+            toast("Password updated!", true);
+        } catch(e) { toast("Error!", false); }
+    });
+
+    document.getElementById("svCpa").addEventListener("click", function() {
+        try {
+            cpaLink = document.getElementById("cpaIn").value.trim();
+            saveSettings();
+            toast("Saved!", true);
+        } catch(e) { toast("Error!", false); }
+    });
+
+    document.getElementById("svCnt").addEventListener("click", function() {
+        try {
+            cpaNeeded = parseInt(document.getElementById("cpaCnt").value) || 1;
+            saveSettings();
+            toast("Saved!", true);
+        } catch(e) { toast("Error!", false); }
+    });
+
+    document.getElementById("clrAll").addEventListener("click", function() {
+        try {
+            if (!allLeaks.length) { toast("Nothing!", false); return; }
+            var batch = db.batch();
+            for (var i = 0; i < allLeaks.length; i++) {
+                batch.delete(db.collection("lz_leaks").doc(allLeaks[i].id));
+            }
+            batch.commit().then(function() {
+                allLeaks = [];
+                updateStats();
+                renderList();
+                toast("All deleted!", true);
+            }).catch(function() { toast("Error!", false); });
+        } catch(e) { toast("Error!", false); }
+
+    });
+
+    /* === بدء === */
+    loadSettings();
+    loadAll();
+
+} catch (e) {
+        console.error("Script error:", e);
+    }
 })();
 </script>
 </body>
