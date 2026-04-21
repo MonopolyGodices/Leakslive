@@ -9,7 +9,7 @@ var SECTION=window.SECTION||"all";
 var BASE=window.BASE||"./";
 
 var SECTIONS={
-    vcc:{name:"VCC Gen",icon:"fa-credit-card",color:"#ffd700",services:[],desc:"Generate virtual test cards"}, 
+    vcc:{name:"VCC Gen",icon:"fa-credit-card",color:"#ffd700",services:[],desc:"Generate virtual test cards"},
     netflix:{name:"Netflix",icon:"fa-tv",color:"#e50914",services:["netflix"],desc:"Premium Netflix accounts"},
     spotify:{name:"Spotify",icon:"fa-headphones",color:"#1db954",services:["spotify"],desc:"Premium Spotify accounts"},
     disney:{name:"Disney+",icon:"fa-wand-magic-sparkles",color:"#113ccf",services:["disney"],desc:"Premium Disney+ accounts"},
@@ -17,7 +17,7 @@ var SECTIONS={
     instagram:{name:"Instagram",icon:"fa-camera",color:"#e1306c",services:["instagram"],desc:"Instagram accounts"},
     gaming:{name:"Gaming",icon:"fa-gamepad",color:"#00d4ff",services:["steam","fortnite","minecraft"],desc:"Steam, Fortnite, Minecraft accounts"},
     other:{name:"Other",icon:"fa-ellipsis",color:"#888",services:["canva","chatgpt","crunchyroll","discord","tiktok","twitter","other"],desc:"Canva, ChatGPT & more"}
-    
+
 };
 
 var SVC={
