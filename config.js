@@ -1,0 +1,1 @@
+var FB_CONFIG={apiKey:"AIzaSyAhTuTzf9axFCAAEVnKK_jlvQ9ipP8puZg",authDomain:"anime-chat-app-66dbe.firebaseapp.com",projectId:"anime-chat-app-66dbe",storageBucket:"anime-chat-app-66dbe.firebasestorage.app",messagingSenderId:"945550755759",appId:"1:945550755759:web:98de13682bad4415e5d15a"};
