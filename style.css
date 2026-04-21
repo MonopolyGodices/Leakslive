@@ -185,4 +185,5 @@ footer{text-align:center;padding:1.5rem 20px;border-top:1px solid var(--bdr);col
 .vcc-bulk-out{max-height:320px;overflow-y:auto;background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:14px;font-family:'Fira Code',monospace;font-size:.7rem;color:var(--dim);white-space:pre-wrap;display:none;line-height:1.8}
 .vcc-bulk-out.show{display:block}
 .vcc-disc{text-align:center;padding:18px;color:var(--mut);font-size:.78rem;line-height:1.8;background:var(--card);border:1px solid var(--bdr);border-radius:10px;margin-top:28px}
-.vcc-disc i{color:var(--red);margin-left:4px}} 
+.vcc-disc i{color:var(--red);margin-left:4px}
+.vcc-controls input::placeholder{color:var(--mut);font-family:'Fira Code',monospace;letter-spacing:1px;font-size:.82rem}} 
